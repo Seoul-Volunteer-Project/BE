@@ -38,6 +38,9 @@ dependencies {
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 	// http://localhost:8080/swagger-ui/index.html
+
+	// NCP Bucket Storage
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.546'
 }
 
 tasks.named('test') {

@@ -10,6 +10,6 @@ public class PostImageDTO {
 
     public PostImageDTO(PostImage image) {
         this.id = image.getId();
-        this.imageUrl = getImageUrl();
+        this.imageUrl = image.getImageUrl();
     }
 }

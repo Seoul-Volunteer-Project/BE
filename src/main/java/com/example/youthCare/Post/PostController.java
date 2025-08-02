@@ -2,8 +2,10 @@ package com.example.youthCare.Post;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,18 +17,23 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 등록
-    @PostMapping("/create")
-    public ResponseEntity<PostResponseDTO> createPost(@RequestParam String title,
-                                        @RequestParam String content,
-                                        @RequestParam Post.BoardType boardType,
-                                        @RequestParam(required = false) List<String> imageUrls,
-                                        HttpSession session) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponseDTO> createPost(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam Post.BoardType boardType,
+            @RequestPart(required = false) MultipartFile[] files,
+            HttpSession session
+    ) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401).build();
         }
 
-        PostResponseDTO created = postService.createPost(userId, title, content, boardType, imageUrls);
+        // PostService에 전달할 DTO 직접 생성
+        PostCreateRequestDTO request = new PostCreateRequestDTO(title, content, boardType);
+
+        PostResponseDTO created = postService.createPost(userId, request, files);
         return ResponseEntity.ok(created);
     }
 
