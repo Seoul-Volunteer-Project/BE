@@ -35,13 +35,21 @@ public class PostService {
                 .viewContent(0)
                 .build();
 
-        // 파일이 있을 경우 S3에 업로드
+        // 1. 먼저 게시글만 저장 (postId 확보)
+        Post savedPost = postRepository.save(post);
+
+        // 2. 이미지가 있다면 S3에 업로드
         if (files != null) {
             for (MultipartFile file : files) {
                 try {
-                    String imageUrl = s3Uploader.upload(file, "post-images");
-                    post.getImages().add(PostImage.builder()
-                            .post(post)
+                    // 폴더 경로: post-images/{boardType}/{postId}
+                    String dirPath = String.format("post-images/%s/%d",
+                            request.getBoardType().name(), savedPost.getId());
+
+                    String imageUrl = s3Uploader.upload(file, dirPath);
+
+                    savedPost.getImages().add(PostImage.builder()
+                            .post(savedPost)
                             .imageUrl(imageUrl)
                             .build());
                 } catch (IOException e) {
@@ -52,7 +60,7 @@ public class PostService {
             }
         }
 
-        return new PostResponseDTO(postRepository.save(post));
+        return new PostResponseDTO(postRepository.save(savedPost)); // 이미지까지 저장된 상태로 반환
     }
 
     // 게시글 단건 조회

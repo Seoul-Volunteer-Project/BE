@@ -17,7 +17,7 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 등록
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponseDTO> createPost(
             @RequestParam String title,
             @RequestParam String content,

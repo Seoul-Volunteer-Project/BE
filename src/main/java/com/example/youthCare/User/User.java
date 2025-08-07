@@ -4,6 +4,7 @@ import com.example.youthCare.Post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ public class User {
 
     @Column(nullable = false)
     private String passwordHash;
+
+    private LocalDate birthdate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

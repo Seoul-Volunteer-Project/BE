@@ -43,7 +43,7 @@ public class Post {
     private List<PostImage> images = new ArrayList<>();
 
     public enum BoardType {
-        ALL, BOARD, GALLERY, HOUSING, EDU, FINANCE, POLICY
+        HOUSING, EDUCATION, FINANCE, POLICY, SUPPORTS, COMMUNITY, GALLERY
     }
 
     @PrePersist
