@@ -54,4 +54,15 @@ public class PostController {
     public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
         return ResponseEntity.ok(postService.getAllPosts());
     }
+
+    // 게시글 단건 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        postService.deletePost(id, userId);
+        return ResponseEntity.noContent().build(); // 204
+    }
 }

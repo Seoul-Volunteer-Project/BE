@@ -7,6 +7,7 @@ import com.example.youthCare.User.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -82,5 +83,29 @@ public class PostService {
         return postRepository.findAll().stream()
                 .map(PostResponseDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    // 게시글 단건 삭제
+    @Transactional
+    public void deletePost(Long postId, Long requesterId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        // 권한 체크: 작성자(또는 관리자 로직이 있다면 추가)
+        if (!post.getAuthor().getId().equals(requesterId)) {
+            throw new SecurityException("삭제 권한이 없습니다.");
+        }
+
+        // 1) S3에서 이미지 정리
+        //   - 저장된 URL 기반으로 개별 삭제 + 혹시 DB에 없는 파일이 있을 수 있으니 폴더 프리픽스도 정리
+        for (PostImage img : post.getImages()) {
+            s3Uploader.deleteByUrl(img.getImageUrl());
+        }
+        String prefix = String.format("post-images/%s/%d/",
+                post.getBoardType().name(), post.getId());
+        s3Uploader.deleteFolder(prefix);
+
+        // 2) DB 삭제 (자식은 cascade + orphanRemoval 로 함께 삭제)
+        postRepository.delete(post);
     }
 }
